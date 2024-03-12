@@ -1,17 +1,12 @@
-import './App.css';
-import Referral from './Components/Referral';
-
-
-
-
-
+import "./App.css";
+import Referral from "./Components/Referral";
 
 function App() {
-    return (
-        <>
-           <Referral />
-        </>
-    );
+  return (
+      <>
+      <Referral />
+    </>
+  );
 }
 
 export default App;
