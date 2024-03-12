@@ -58,6 +58,28 @@ export default function Referral() {
       var notification = document.getElementById("copyNotification");
       notification.style.opacity = "1";
 
+    // to retrieve the points from localStorage and display the latest points for each user
+    useEffect(() => {
+      const points = localStorage.getItem('Points');
+      if (points) {
+          setCopiedCount(parseInt(points));
+      }
+    }, []);
+    
+    // to generate the referral link
+    const generateReferralLink = async () => {
+        try {
+          const referralCode = generateRandomReferralCode(); 
+          const referralLink = `https://MealPal.com/signup?referral=${referralCode}`;
+          // to Save referral code to local storage
+          localStorage.setItem('referralCode', referralCode);
+    
+          setReferralLink(referralLink);
+        } catch (error) {
+          console.error('Error generating referral link:', error);
+        }
+    };
+
       // Hide the notification after 1 second
       setTimeout(function () {
         notification.style.opacity = "0";
