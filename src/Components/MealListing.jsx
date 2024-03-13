@@ -4,6 +4,23 @@ import { useState } from "react";
 import { MdOutlineKeyboardArrowRight } from "react-icons/md";
 
 function MealListing() {
+  /* 
+    this is the interface for your response
+      interface Recipe {
+          id: number;
+          title: string;
+          image: string;
+          imageType: string;
+      }
+
+      interface RecipeApiResponse {
+          results: Recipe[];
+          offset: number;
+          number: number;
+          totalResults: number;
+      }
+
+  */
   const [meal, setMeals] = useState([]);
 
   useEffect(() => {
@@ -16,7 +33,7 @@ function MealListing() {
         const data = await request.json();
 
         console.log(data);
-        setProducts(data);
+        setMeals(data);
       } catch (error) {
         console.log(error);
       }
@@ -26,21 +43,26 @@ function MealListing() {
   }, []);
 
   return (
-    <div>
-      {meal?.map((singleMeal, index) => (
-        <div className="flex align-center justify-center gap-3" key={index}>
-          <image
-            src={singleMeal?.image}
-            className="w-[200px] h-[200px] object-fit"
-          />
-          <p> {singleMeal?.title}</p>
+    <div className="">
+      <h2 className="text-[#101010] text-base font-semibold">Meal Listing</h2>
+      {meal?.results?.map((singleMeal) => (
+        <div className="flex align-center justify-between" key={singleMeal?.id}>
+          <div className="flex justify-between">
+            <img
+              src={singleMeal.image}
+              className="w-[60px] h-[60px] object-contain"
+              alt={singleMeal?.title}
+              loading="lazy"
+            />
+            <p className="text-base"> {singleMeal?.title}</p>
+          </div>
+
+          <button className="flex align-center justify-center gap-2">
+            <span>View</span>
+            <MdOutlineKeyboardArrowRight className="text-xxl" />
+          </button>
         </div>
       ))}
-
-      <div className="flex align-cneter justify-center gap-2">
-        <span>View</span>
-        <MdOutlineKeyboardArrowRight />
-      </div>
     </div>
   );
 }
