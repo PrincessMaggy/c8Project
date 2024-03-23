@@ -76,8 +76,18 @@ const PostCard = ({ id, name, logo, email, text, image, timestamp }) => {
     const getComments = async () => {
       try {
         const commentsQuery = collection(db, "posts", id, "comments");
-        await onSnapshot(commentsQuery, (doc) => {
-          setComments(doc.docs.map((item) => item.data()));
+        await onSnapshot(commentsQuery, async (doc) => {
+          const commentsData = [];
+          for (const commentDoc of doc.docs) {
+            const commentData = commentDoc.data();
+            // Fetch commenter's name based on user ID
+            const commenterRef = doc(db, "users", commentData.userId);
+            const commenterSnapshot = await getDocs(commenterRef);
+            const commenterData = commenterSnapshot.docs[0].data();
+            const commenterName = commenterData.displayName || commenterData.name || "Unknown";
+            commentsData.push({ ...commentData, commenterName });
+          }
+          setComments(commentsData);
         });
       } catch (err) {
         dispatch({ type: HANDLE_ERROR });
@@ -103,7 +113,7 @@ const PostCard = ({ id, name, logo, email, text, image, timestamp }) => {
           <Link to="/profile" onClick={handleNavigateToProfile}>
             <div className="flex -space-x-1 overflow-hidden">
               <img
-                className="inline-block h-10 w-10 rounded-full ring-2 ring-white"
+                className="inline-block  w-10 rounded-full ring-2 ring-white"
                 src={logo || avatar}
                 alt="image"
               />
@@ -112,21 +122,21 @@ const PostCard = ({ id, name, logo, email, text, image, timestamp }) => {
 
           <div className="flex justify-between w-full">
             <div>
-              <p className="ml-4 font-roboto font-medium text-sm text-gray-700 no-underline tracking-normal leading-none">
+              <p className="ml-4  font-medium text-sm text-gray-700 no-underline tracking-normal leading-none">
                 {name}
               </p>
-              <p className="ml-4 font-roboto font-medium text-sm text-gray-700 no-underline tracking-normal leading-none">
+              {/* <p className="ml-4  font-medium text-sm text-gray-700 no-underline tracking-normal leading-none">
                 {email}
-              </p>
+              </p> */}
             </div>
 
-            <p className="mr-4 font-roboto font-medium text-sm text-gray-700 no-underline tracking-normal leading-none">
+            <p className="mr-4 font-medium text-sm text-gray-700 no-underline tracking-normal leading-none">
               {timestamp}
             </p>
           </div>
         </div>
         <div>
-          <p className=" pb-4 font-roboto font-medium text-sm text-gray-700 no-underline tracking-normal leading-none">
+          <p className=" pb-4  font-medium text-sm text-gray-700 no-underline tracking-normal leading-none">
             {text}
           </p>
           {image && (
@@ -139,7 +149,7 @@ const PostCard = ({ id, name, logo, email, text, image, timestamp }) => {
             onClick={handleLike}
           >
             <img className="h-8" src={like} alt=""></img>
-            <p className="font-roboto font-medium text-md text-gray-700 no-underline tracking-normal leading-none">
+            <p className=" font-medium text-md text-gray-700 no-underline tracking-normal leading-none">
               Love {""}
             </p>
             ({state.likes?.length > 0 && state?.likes?.length})
@@ -150,14 +160,19 @@ const PostCard = ({ id, name, logo, email, text, image, timestamp }) => {
           >
             <div className="flex items-center cursor-pointer">
               <img className="h-8" src={comment} alt="comment"></img>
-              <p className="font-roboto font-medium text-md text-gray-700 no-underline tracking-normal leading-none">
+              <p className=" font-medium text-md text-gray-700 no-underline tracking-normal leading-none">
                 Comments ({commentCount})
               </p>
             </div>
           </div>
         </div>
       </div>
-      {open && <CommentSection postId={id}></CommentSection>}
+      {open && (
+        <CommentSection
+          postId={id}
+          comments={comments} // Pass comments data to CommentSection
+        ></CommentSection>
+      )}
     </div>
   );
 };
